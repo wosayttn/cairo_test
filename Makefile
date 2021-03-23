@@ -1,3 +1,5 @@
+include env.mak
+
 SUBDIR=directfb file linuxfb
 
 BUILDSUBDIR = $(SUBDIR:%=build-%)

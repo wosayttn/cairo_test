@@ -1,16 +1,11 @@
-ROOTFS=/usr/local/oecore-x86_64/sysroots/aarch64-poky-linux/
-
-CC = aarch64-poky-linux-gcc --sysroot=${ROOTFS}
 PROG_NAME = cairo_directfb
 SRCS = cairo_directfb.c
 OBJS = cairo_directfb.o
 
-CFLAGS += -I${ROOTFS}/usr/include/cairo
-CFLAGS += -I${ROOTFS}/usr/include/directfb
+CFLAGS += -I${SYSROOT}/usr/include/directfb
 
 LDFLAGS += -ldirectfb
 LDFLAGS += -ldirect
-LDFLAGS += -lcairo
 LDFLAGS += -lfusion
 LDFLAGS += -lz
 
@@ -27,4 +22,4 @@ ${OBJS}:${INCS}
 clean:
 	rm -f *.o ${PROG_NAME}
 
-rebuild: clean all	
+rebuild: clean all
