@@ -152,25 +152,25 @@ draw(cairo_t *cr,
     double radius = 0.5 * (width < height ? width : height) - 10;
     double xc = width / 2.;
     double yc = height / 2.;
-    where_am_i();
+
     overlay = cairo_surface_create_similar(cairo_get_target(cr),
                                            CAIRO_CONTENT_COLOR_ALPHA,
                                            width, height);
     if (overlay == NULL)
         return;
-    where_am_i();
+
     punch = cairo_surface_create_similar(cairo_get_target(cr),
                                          CAIRO_CONTENT_ALPHA,
                                          width, height);
     if (punch == NULL)
         return;
-    where_am_i();
+
     circles = cairo_surface_create_similar(cairo_get_target(cr),
                                            CAIRO_CONTENT_COLOR_ALPHA,
                                            width, height);
     if (circles == NULL)
         return;
-    where_am_i();
+
     fill_checks(cr, 0, 0, width, height);
     /* Draw a black circle on the overlay
      */
@@ -178,18 +178,18 @@ draw(cairo_t *cr,
     cairo_set_source_rgb(overlay_cr, 0., 0., 0.);
     oval_path(overlay_cr, xc, yc, radius, radius);
     cairo_fill(overlay_cr);
-    where_am_i();
+
     /* Draw 3 circles to the punch surface, then cut
      * that out of the main circle in the overlay
      */
     punch_cr = cairo_create(punch);
     draw_3circles(punch_cr, xc, yc, radius, 1.0);
     cairo_destroy(punch_cr);
-    where_am_i();
+
     cairo_set_operator(overlay_cr, CAIRO_OPERATOR_DEST_OUT);
     cairo_set_source_surface(overlay_cr, punch, 0, 0);
     cairo_paint(overlay_cr);
-    where_am_i();
+
     /* Now draw the 3 circles in a subgroup again
      * at half intensity, and use OperatorAdd to join up
      * without seams.
@@ -198,11 +198,11 @@ draw(cairo_t *cr,
     cairo_set_operator(circles_cr, CAIRO_OPERATOR_OVER);
     draw_3circles(circles_cr, xc, yc, radius, 0.5);
     cairo_destroy(circles_cr);
-    where_am_i();
+
     cairo_set_operator(overlay_cr, CAIRO_OPERATOR_ADD);
     cairo_set_source_surface(overlay_cr, circles, 0, 0);
     cairo_paint(overlay_cr);
-    where_am_i();
+
     cairo_destroy(overlay_cr);
     cairo_set_source_surface(cr, overlay, 0, 0);
     cairo_paint(cr);
@@ -231,27 +231,21 @@ static void draw_simple(IDirectFB *dfb, IDirectFBSurface *surface)
 {
     int   ret_width = 0;
     int   ret_height = 0;
-    where_am_i();
     static int counter = 1;
     char filename[16];
 
     surface->GetSize(surface, &ret_width, &ret_height);
     fprintf(stderr, "%s # %i %d %d\n", __func__, __LINE__, ret_width, ret_height);
-    where_am_i();
     cairo_surface_t *csurface = cairo_directfb_surface_create(dfb, surface);
-    where_am_i();
     cairo_t *cr = cairo_create(csurface);
-    where_am_i();
     draw(cr, ret_width, ret_height, csurface, surface);
-    where_am_i();
 
     snprintf(filename, sizeof(filename), "%d.png", counter++);
-    printf("%s\n", filename);
-    cairo_file_png(cr, filename);
+    //cairo_file_png(cr, filename);
 
     cairo_surface_destroy(csurface);
-    where_am_i();
     cairo_destroy(cr);
+
     where_am_i();
     surface->Flip(surface, NULL, 0);
     where_am_i();
@@ -301,41 +295,28 @@ int main(int argc, char *argv[])
             desc.flags  |= DWDESC_CAPS;
         }
 
-        where_am_i();
         DFBCHECK(layer->CreateWindow(layer, &desc, &window1));
-        where_am_i();
         window1->CreateEventBuffer(window1, &buffer);
-        where_am_i();
         window1->GetSurface(window1, &window_surface1);
-        where_am_i();
         window_surface1->SetColor(window_surface1, 0xFF, 0x20, 0x20, 0xFF);
-        where_am_i();
         window_surface1->DrawRectangle(window_surface1, 0, 0, desc.width, desc.height);
 
-        where_am_i();
         window_surface1->Flip(window_surface1, NULL, 0);
-        where_am_i();
         window1->AttachEventBuffer(window1, buffer);
-        where_am_i();
         if (desc.caps == DWCAPS_ALPHACHANNEL)
         {
             /*window1->SetOpacity( window1, 0x7f );*/
             window1->SetOpacity(window1, 0xFF);
-            where_am_i();
         }
         else
         {
             window1->SetOpacity(window1, 0xFF);
-            where_am_i();
         }
 
         window1->GetID(window1, &id1);
-        where_am_i();
     }
-    where_am_i();
 
     window1->RequestFocus(window1);
-    where_am_i();
     window1->RaiseToTop(window1);
 
     for (;;)
@@ -343,7 +324,6 @@ int main(int argc, char *argv[])
         draw_simple(dfb, window_surface1);
     }
 
-    where_am_i();
     buffer->Release(buffer);
     window_surface1->Release(window_surface1);
     window1->Release(window1);

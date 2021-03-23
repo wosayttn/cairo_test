@@ -21,7 +21,6 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/mman.h>
-#include <tslib.h>
 #include <time.h>
 
 static volatile sig_atomic_t cancel = 0;
@@ -42,24 +41,8 @@ void signal_handler(int signum)
 
 void cairo_file_png(cairo_t *fbcr, const char *filename)
 {
-#if 0
-// Get Bus-error
     cairo_surface_t *surface = cairo_get_target(fbcr);
     cairo_surface_write_to_png(surface, filename);
-#else
-// Workaround
-    cairo_surface_t *fb_surface = cairo_get_target(fbcr);
-    cairo_surface_t *surface = cairo_image_surface_create(cairo_image_surface_get_format(fb_surface), cairo_image_surface_get_width(fb_surface), cairo_image_surface_get_height(fb_surface));
-    cairo_t *cr = cairo_create(surface);
-
-    cairo_set_source_surface(cr, fb_surface, 0, 0);
-    cairo_paint(cr);
-
-    cairo_surface_write_to_png(surface, filename);
-
-    cairo_destroy(cr);
-    cairo_surface_destroy(surface);
-#endif
 }
 
 /*
@@ -72,14 +55,14 @@ int flip_buffer(cairo_linuxfb_device_t *device, int vsync, int bufid)
     /* Pan the framebuffer */
     device->fb_vinfo.yoffset = device->fb_vinfo.yres * bufid;
 
-    printf("1. draw fb_offset=%d, yres=%d, vsync=%d\n", device->fb_vinfo.yoffset, device->fb_vinfo.yres, vsync);
+    //printf("1. draw fb_offset=%d, yres=%d, vsync=%d\n", device->fb_vinfo.yoffset, device->fb_vinfo.yres, vsync);
 
     if (ioctl(device->fb_fd, FBIOPAN_DISPLAY, &device->fb_vinfo))
     {
         perror("Error panning display");
         return -1;
     }
-    printf("2. draw fb_offset=%d, yres=%d, vsync=%d\n", device->fb_vinfo.yoffset, device->fb_vinfo.yres, vsync);
+    //printf("2. draw fb_offset=%d, yres=%d, vsync=%d\n", device->fb_vinfo.yoffset, device->fb_vinfo.yres, vsync);
 
     if (vsync)
     {
@@ -95,16 +78,16 @@ int flip_buffer(cairo_linuxfb_device_t *device, int vsync, int bufid)
 
 
 /* Destroy a cairo surface */
-void cairo_linuxfb_surface_destroy(void *device)
+void cairo_linuxfb_surface_destroy(void *dev)
 {
-    cairo_linuxfb_device_t *dev = (cairo_linuxfb_device_t *)device;
+    cairo_linuxfb_device_t *device = (cairo_linuxfb_device_t *)dev;
 
-    if (dev == NULL)
+    if (device == NULL)
         return;
 
-    munmap(dev->fb_data, dev->fb_screensize);
-    close(dev->fb_fd);
-    free(dev);
+    munmap((void*)device->fb_data, device->fb_screensize);
+    close(device->fb_fd);
+    free(device);
 }
 
 /* Create a cairo surface using the specified framebuffer */
@@ -143,20 +126,29 @@ cairo_surface_t *cairo_linuxfb_surface_create(cairo_linuxfb_device_t *device, co
         goto handle_ioctl_error;
     }
 
-    printf("-> device->fb_vinfo.yoffset=%d, device->fb_vinfo.yres_virtual=%d\n", device->fb_vinfo.yoffset, device->fb_vinfo.yres_virtual);
+    device->fb_screensize = device->fb_vinfo.xres_virtual * device->fb_vinfo.yres_virtual * device->fb_vinfo.bits_per_pixel / 8; 
+    printf("-> device->fb_vinfo.xres_virtual=%d\n", device->fb_vinfo.xres_virtual);
+    printf("-> device->fb_vinfo.yres_virtual=%d\n", device->fb_vinfo.yres_virtual);
+    printf("-> device->fb_vinfo.bits_per_pixel=%d\n", device->fb_vinfo.bits_per_pixel);
+    printf("-> device->fb_screensize=%d\n", device->fb_screensize);
+    printf("-> device->fb_vinfo.yoffset=%d\n", device->fb_vinfo.yoffset);
     printf("-> device->fb_vinfo.yres=%d\n", device->fb_vinfo.yres);
     printf("-> device->fb_finfo.smem_len=%d\n", device->fb_finfo.smem_len);
-    printf("-> device->fb_vinfo.yres_virtual=%d\n", device->fb_vinfo.yres_virtual);
 
     // Map the device to memory
-    device->fb_data = (unsigned char *)mmap(0, device->fb_finfo.smem_len,
+    device->fb_data = (unsigned char *)mmap(0, device->fb_screensize,
                                             PROT_READ | PROT_WRITE, MAP_SHARED,
                                             device->fb_fd, 0);
-    if ((int)device->fb_data == -1)
+    if (device->fb_data == (unsigned char *)-1)
     {
         perror("Error: failed to map framebuffer device to memory");
         goto handle_ioctl_error;
     }
+
+    printf("Clean video buffer.\n");
+    printf("BUS-ERROR? Instead of pgprot_writecombine in ultradc_mmap.\n");
+    memset((void*)device->fb_data, 0, device->fb_screensize);
+    printf("Clean video buffer. done\n");
 
     /* Create the cairo surface which will be used to draw to */
     /*
@@ -182,14 +174,13 @@ handle_allocate_error:
     exit(1);
 }
 
-void draw_rectangles(cairo_t *fbcr, struct tsdev *ts, cairo_linuxfb_device_t *device)
+void draw_rectangles(cairo_t *fbcr, cairo_linuxfb_device_t *device)
 {
     int bufid = 1; /* start drawing into second buffer */
     float r, g, b;
     int fbsizex = device->fb_vinfo.xres;
     int fbsizey = device->fb_vinfo.yres;
     int startx, starty, sizex, sizey;
-    struct ts_sample sample;
     cairo_surface_t *surface;
     cairo_surface_t *png_surface;
     cairo_t *cr;
@@ -227,33 +218,6 @@ void draw_rectangles(cairo_t *fbcr, struct tsdev *ts, cairo_linuxfb_device_t *de
         sizey = rand() % (fbsizey - starty);
 
         cairo_identity_matrix(cr);
-        if (ts)
-        {
-            int pressed = 0;
-
-            /* Pressure is our identication whether we act on axis... */
-            while (ts_read(ts, &sample, 1))
-            {
-                if (sample.pressure > 0)
-                    pressed = 1;
-            }
-
-            if (pressed)
-            {
-                scale *= 1.05f;
-                cairo_translate(cr, sample.x, sample.y);
-                cairo_scale(cr, scale, scale);
-                //r = g = b = 0;
-                startx = -5;
-                starty = -5;
-                sizex = 10;
-                sizey = 10;
-            }
-            else
-            {
-                scale = 1.0f;
-            }
-        }
 
         cairo_set_source_rgb(cr, r, g, b);
         cairo_rectangle(cr, startx, starty, sizex, sizey);
@@ -268,14 +232,12 @@ void draw_rectangles(cairo_t *fbcr, struct tsdev *ts, cairo_linuxfb_device_t *de
         cairo_paint(fbcr);
 
         snprintf(filename, sizeof(filename), "%d.png", counter++);
-        printf("%s\n", filename);
         cairo_file_png(fbcr, filename);
 
         flip_buffer(device, 1, bufid);
 
         /* Switch buffer ID for next draw */
         bufid = !bufid;
-        //getchar();
     }
 
     /* Make sure we leave with buffer 0 enabled */
@@ -339,19 +301,6 @@ int main(int argc, char *argv[])
 
     printf("Frame buffer node is: %s\n", fb_node);
 
-#if 0
-    if ((tsdevice = getenv("TSLIB_TSDEVICE")) != NULL)
-        ts = ts_open(tsdevice, 1);
-    else
-        ts = ts_open("/dev/input/event0", 1);
-
-    if (ts_config(ts))
-    {
-        perror("ts_config");
-        exit(1);
-    }
-#endif
-
     device = malloc(sizeof(*device));
     if (!device)
     {
@@ -369,8 +318,7 @@ int main(int argc, char *argv[])
 
     printf("root->%08x, %08x\n", fbcr, fbsurface);
 
-//  draw_rectangles(fbcr, ts, device);
-    draw_rectangles(fbcr, NULL, device);
+    draw_rectangles(fbcr, device);
     cairo_destroy(fbcr);
     cairo_surface_destroy(fbsurface);
 
