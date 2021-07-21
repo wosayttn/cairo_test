@@ -19,4 +19,5 @@ Copy neccessary execution and resource to target side, then run.
 # ./cairo_file
 # ./cairo_linuxfb
 # ./cairo_directfb
+# ./cairo_alphablending
 ```

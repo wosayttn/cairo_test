@@ -24,7 +24,8 @@
 #define CURSOR_SIZE 32
 #define GAMMA_INDEX_MAX 256
 
-typedef struct _dc_frame_info {
+typedef struct _dc_frame_info
+{
     unsigned int width;
     unsigned int height;
     unsigned int stride;
@@ -32,7 +33,8 @@ typedef struct _dc_frame_info {
 }
 dc_frame_info;
 
-typedef struct _dc_overlay_rect {
+typedef struct _dc_overlay_rect
+{
     unsigned int tlx;
     unsigned int tly;
     unsigned int brx;
@@ -40,7 +42,8 @@ typedef struct _dc_overlay_rect {
 }
 dc_overlay_rect;
 
-typedef enum _dc_alpha_blending_mode {
+typedef enum _dc_alpha_blending_mode
+{
     DC_BLEND_MODE_CLEAR = 0x0,
     DC_BLEND_MODE_SRC,
     DC_BLEND_MODE_DST,
@@ -52,7 +55,8 @@ typedef enum _dc_alpha_blending_mode {
 }
 dc_alpha_blending_mode;
 
-typedef enum _dc_rot_angle {
+typedef enum _dc_rot_angle
+{
     DC_ROT_ANGLE_ROT0 = 0x0,
     DC_ROT_ANGLE_FLIP_X,
     DC_ROT_ANGLE_FLIP_Y,
@@ -63,7 +67,8 @@ typedef enum _dc_rot_angle {
 }
 dc_rot_angle;
 
-typedef enum _dc_tile_mode {
+typedef enum _dc_tile_mode
+{
     DC_TILE_MODE_LINEAR = 0x0,
     DC_TILE_MODE_TILED4X4,
     DC_TILE_MODE_SUPER_TILED_XMAJOR,
@@ -76,31 +81,36 @@ typedef enum _dc_tile_mode {
 }
 dc_tile_mode;
 
-typedef struct _dc_global_alpha {
+typedef struct _dc_global_alpha
+{
     unsigned int global_alpha_mode;
     unsigned int global_alpha_value;
 }
 dc_global_alpha;
 
-typedef struct _dc_filter_tap {
+typedef struct _dc_filter_tap
+{
     unsigned int vertical_filter_tap;
     unsigned int horizontal_filter_tap;
 }
 dc_filter_tap;
 
-typedef struct _dc_sync_table {
+typedef struct _dc_sync_table
+{
     unsigned int horkernel[128];
     unsigned int verkernel[128];
 }
 dc_sync_table;
 
-typedef struct _dc_gamma_table {
+typedef struct _dc_gamma_table
+{
     bool gamma_enable;
     unsigned int gamma[GAMMA_INDEX_MAX][3];
 }
 dc_gamma_table;
 
-typedef struct _dc_color_key {
+typedef struct _dc_color_key
+{
     unsigned char enable;
     unsigned int colorkey_low;
     unsigned int colorkey_high;

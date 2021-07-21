@@ -85,7 +85,7 @@ void cairo_linuxfb_surface_destroy(void *dev)
     if (device == NULL)
         return;
 
-    munmap((void*)device->fb_data, device->fb_screensize);
+    munmap((void *)device->fb_data, device->fb_screensize);
     close(device->fb_fd);
     free(device);
 }
@@ -126,7 +126,7 @@ cairo_surface_t *cairo_linuxfb_surface_create(cairo_linuxfb_device_t *device, co
         goto handle_ioctl_error;
     }
 
-    device->fb_screensize = device->fb_vinfo.xres_virtual * device->fb_vinfo.yres_virtual * device->fb_vinfo.bits_per_pixel / 8; 
+    device->fb_screensize = device->fb_vinfo.xres_virtual * device->fb_vinfo.yres_virtual * device->fb_vinfo.bits_per_pixel / 8;
     printf("-> device->fb_vinfo.xres_virtual=%d\n", device->fb_vinfo.xres_virtual);
     printf("-> device->fb_vinfo.yres_virtual=%d\n", device->fb_vinfo.yres_virtual);
     printf("-> device->fb_vinfo.bits_per_pixel=%d\n", device->fb_vinfo.bits_per_pixel);
@@ -139,7 +139,7 @@ cairo_surface_t *cairo_linuxfb_surface_create(cairo_linuxfb_device_t *device, co
     device->fb_data = (unsigned char *)mmap(0, device->fb_screensize,
                                             PROT_READ | PROT_WRITE, MAP_SHARED,
                                             device->fb_fd, 0);
-    if (device->fb_data == (unsigned char *)-1)
+    if (device->fb_data == (unsigned char *) -1)
     {
         perror("Error: failed to map framebuffer device to memory");
         goto handle_ioctl_error;
@@ -147,7 +147,7 @@ cairo_surface_t *cairo_linuxfb_surface_create(cairo_linuxfb_device_t *device, co
 
     printf("Clean video buffer.\n");
     printf("BUS-ERROR? Instead of pgprot_writecombine in ultradc_mmap.\n");
-    memset((void*)device->fb_data, 0, device->fb_screensize);
+    memset((void *)device->fb_data, 0, device->fb_screensize);
     printf("Clean video buffer. done\n");
 
     /* Create the cairo surface which will be used to draw to */

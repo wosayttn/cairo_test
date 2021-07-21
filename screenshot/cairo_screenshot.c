@@ -56,7 +56,7 @@ void cairo_linuxfb_surface_destroy(void *dev)
     if (device == NULL)
         return;
 
-    munmap((void*)device->fb_data, device->fb_screensize);
+    munmap((void *)device->fb_data, device->fb_screensize);
     close(device->fb_fd);
     free(device);
 }
@@ -98,13 +98,13 @@ cairo_surface_t *cairo_linuxfb_surface_create(cairo_linuxfb_device_t *device, co
         goto handle_ioctl_error;
     }
 
-    device->fb_screensize = device->fb_vinfo.xres_virtual * device->fb_vinfo.yres_virtual * device->fb_vinfo.bits_per_pixel / 8; 
+    device->fb_screensize = device->fb_vinfo.xres_virtual * device->fb_vinfo.yres_virtual * device->fb_vinfo.bits_per_pixel / 8;
 
     // Map the device to memory
     device->fb_data = (unsigned char *)mmap(0, device->fb_screensize,
                                             PROT_READ | PROT_WRITE, MAP_SHARED,
                                             device->fb_fd, 0);
-    if (device->fb_data == (unsigned char *)-1)
+    if (device->fb_data == (unsigned char *) -1)
     {
         perror("Error: failed to map framebuffer device to memory");
         goto handle_ioctl_error;
@@ -136,14 +136,14 @@ handle_allocate_error:
 
 static void help(void)
 {
-        fprintf(stdout,
-                "Usage: fbread [OPTION] -o [FILE]\n"
-                "-h,--help        Help\n"
-                "-d,--device      frame buffer device node(/dev/fb0, /dev/fb1)\n"
-                "-w,--withlable   Overlap label on image\n"
-                "-o,--ofilepath   Filename of output file\n"
-                "\n");
-        fflush(stdout);
+    fprintf(stdout,
+            "Usage: fbread [OPTION] -o [FILE]\n"
+            "-h,--help        Help\n"
+            "-d,--device      frame buffer device node(/dev/fb0, /dev/fb1)\n"
+            "-w,--withlable   Overlap label on image\n"
+            "-o,--ofilepath   Filename of output file\n"
+            "\n");
+    fflush(stdout);
 }
 
 #define FB_DEVICE "/dev/fb0"
@@ -157,64 +157,64 @@ int main(int argc, char *argv[])
     cairo_linuxfb_device_t *device;
     cairo_surface_t *fbsurface;
     cairo_t *fbcr;
-	int 		bRun=0;
-	int 		c;
+    int         bRun = 0;
+    int         c;
 
     struct option long_option[] =
     {
-            {"help", 0, NULL, 'h'},
-            {"device", 0, NULL, 'd'},
-            {"withlable", 0, NULL, 'w'},
-            {"ofilepath", 1, NULL, 'o'},
-            {NULL, 0, NULL, 0},
+        {"help", 0, NULL, 'h'},
+        {"device", 0, NULL, 'd'},
+        {"withlable", 0, NULL, 'w'},
+        {"ofilepath", 1, NULL, 'o'},
+        {NULL, 0, NULL, 0},
     };
 
     strcpy(fb_node, FB_DEVICE);
 
-	// Parsing
-	while( (c = getopt_long (argc, argv, "d:o:w:h", long_option, NULL)) >= 0 )
-	{
-		switch(c)
-		{
-			case 'o':
-				if(optarg)
-					strcpy(szFilename, optarg);
-				else
-				{
-					help();
-					return 0;
-				}
-				bRun=1;
-				break;
+    // Parsing
+    while ((c = getopt_long(argc, argv, "d:o:w:h", long_option, NULL)) >= 0)
+    {
+        switch (c)
+        {
+        case 'o':
+            if (optarg)
+                strcpy(szFilename, optarg);
+            else
+            {
+                help();
+                return 0;
+            }
+            bRun = 1;
+            break;
 
-			case 'd':
-				if(optarg)
-					strcpy(fb_node, optarg);
-				else
-				{
-					help();
-					return 0;
-				}
-				bRun=1;
-				break;
+        case 'd':
+            if (optarg)
+                strcpy(fb_node, optarg);
+            else
+            {
+                help();
+                return 0;
+            }
+            bRun = 1;
+            break;
 
-			case 'w':
-				if(optarg)
-					strcpy(szLable, optarg);
-				else
-				{
-					help();
-					return 0;
-				}
-				bRun=1;
-				break;
+        case 'w':
+            if (optarg)
+                strcpy(szLable, optarg);
+            else
+            {
+                help();
+                return 0;
+            }
+            bRun = 1;
+            break;
 
-			case 'h':
-			case '?':
-				help();
-				return 0;
-		}
-	}
+        case 'h':
+        case '?':
+            help();
+            return 0;
+        }
+    }
 
     device = malloc(sizeof(*device));
     if (!device)
@@ -231,8 +231,8 @@ int main(int argc, char *argv[])
     fbsurface = cairo_linuxfb_surface_create(device, fb_node);
     fbcr = cairo_create(fbsurface);
 
-	if ( szLable[0] != '\0' )
-		cairo_overlap_label(fbcr, szLable );
+    if (szLable[0] != '\0')
+        cairo_overlap_label(fbcr, szLable);
 
     cairo_file_png(fbcr, szFilename);
 

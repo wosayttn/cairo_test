@@ -1,6 +1,6 @@
 include env.mak
 
-SUBDIR=directfb file linuxfb
+SUBDIR=directfb file linuxfb screenshot alphablending
 
 BUILDSUBDIR = $(SUBDIR:%=build-%)
 CLEANSUBDIR = $(SUBDIR:%=clean-%)

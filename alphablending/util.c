@@ -48,40 +48,40 @@
 
 void dump_vscreeninfo(struct fb_var_screeninfo *fvsi)
 {
-	printf("======= FB VAR SCREENINFO =======\n");
-	printf("xres: %d\n", fvsi->xres);
-	printf("yres: %d\n", fvsi->yres);
-	printf("yres_virtual: %d\n", fvsi->yres_virtual);
-	printf("buffer number: %d\n", fvsi->yres_virtual / fvsi->yres);
-	printf("bpp : %d\n", fvsi->bits_per_pixel);
-	printf("red bits    :\n");
-	printf("    offset   : %d\n", fvsi->red.offset);
-	printf("    length   : %d\n", fvsi->red.length);
-	printf("    msb_right: %d\n", fvsi->red.msb_right);
-	printf("green bits  :\n");
-	printf("    offset   : %d\n", fvsi->green.offset);
-	printf("    length   : %d\n", fvsi->green.length);
-	printf("    msb_right: %d\n", fvsi->green.msb_right);
-	printf("blue bits   :\n");
-	printf("    offset   : %d\n", fvsi->blue.offset);
-	printf("    length   : %d\n", fvsi->blue.length);
-	printf("    msb_right: %d\n", fvsi->blue.msb_right);
-	printf("transp bits :\n");
-	printf("    offset   : %d\n", fvsi->transp.offset);
-	printf("    length   : %d\n", fvsi->transp.length);
-	printf("    msb_right: %d\n", fvsi->transp.msb_right);
+    printf("======= FB VAR SCREENINFO =======\n");
+    printf("xres: %d\n", fvsi->xres);
+    printf("yres: %d\n", fvsi->yres);
+    printf("yres_virtual: %d\n", fvsi->yres_virtual);
+    printf("buffer number: %d\n", fvsi->yres_virtual / fvsi->yres);
+    printf("bpp : %d\n", fvsi->bits_per_pixel);
+    printf("red bits    :\n");
+    printf("    offset   : %d\n", fvsi->red.offset);
+    printf("    length   : %d\n", fvsi->red.length);
+    printf("    msb_right: %d\n", fvsi->red.msb_right);
+    printf("green bits  :\n");
+    printf("    offset   : %d\n", fvsi->green.offset);
+    printf("    length   : %d\n", fvsi->green.length);
+    printf("    msb_right: %d\n", fvsi->green.msb_right);
+    printf("blue bits   :\n");
+    printf("    offset   : %d\n", fvsi->blue.offset);
+    printf("    length   : %d\n", fvsi->blue.length);
+    printf("    msb_right: %d\n", fvsi->blue.msb_right);
+    printf("transp bits :\n");
+    printf("    offset   : %d\n", fvsi->transp.offset);
+    printf("    length   : %d\n", fvsi->transp.length);
+    printf("    msb_right: %d\n", fvsi->transp.msb_right);
 
-	printf("=================================\n");
+    printf("=================================\n");
 }
 
 void dump_fscreeninfo(struct fb_fix_screeninfo *ffsi)
 {
-	printf("======= FB FIX SCREENINFO =======\n");
-	printf("id          : %s\n", ffsi->id);
-	printf("smem_start  : 0x%08lX\n", ffsi->smem_start);
-	printf("smem_len    : %u\n", ffsi->smem_len);
-	printf("line_length : %u\n", ffsi->line_length);
-	printf("=================================\n");
+    printf("======= FB FIX SCREENINFO =======\n");
+    printf("id          : %s\n", ffsi->id);
+    printf("smem_start  : 0x%08lX\n", ffsi->smem_start);
+    printf("smem_len    : %u\n", ffsi->smem_len);
+    printf("line_length : %u\n", ffsi->line_length);
+    printf("=================================\n");
 }
 
 int ShowPage(char *name, struct fb_var_screeninfo *var, char *usermem, unsigned int oneframesize)
@@ -90,7 +90,7 @@ int ShowPage(char *name, struct fb_var_screeninfo *var, char *usermem, unsigned 
     char *temp = NULL;
 
     fp = fopen(name, "rb");
-    if(fp == NULL)
+    if (fp == NULL)
     {
         printf("can't open %s\n", name);
     }
@@ -332,11 +332,11 @@ int SetScaleFilterTap(int fd, dc_filter_tap filtertap)
 }
 
 int SetScaleSyncTable(int fd, unsigned int verfiltertap, unsigned int horfiltertap, unsigned int srcwidth,
-        unsigned int dstwidth, unsigned int srcheight, unsigned int dstheight)
+                      unsigned int dstwidth, unsigned int srcheight, unsigned int dstheight)
 {
     int ret = 0;
-    unsigned int * horaddr = NULL;
-    unsigned int * veraddr = NULL;
+    unsigned int *horaddr = NULL;
+    unsigned int *veraddr = NULL;
     dc_sync_table table;
 
     horaddr = calculate_sync_table(horfiltertap, srcwidth, dstwidth);
@@ -432,7 +432,7 @@ float sinc_filter(float x, unsigned int radius)
     return result;
 }
 
-void * os_mem_alloc(unsigned int size)
+void *os_mem_alloc(unsigned int size)
 {
     if (size != 0)
         return malloc(size);
@@ -440,14 +440,14 @@ void * os_mem_alloc(unsigned int size)
     return NULL;
 }
 
-void os_mem_free(void * addr)
+void os_mem_free(void *addr)
 {
     if (addr != NULL)
         free(addr);
 }
 
 /* Calculate weight array for sync filter. */
-unsigned int * calculate_sync_table(unsigned char kernel_size, unsigned int src_size, unsigned int dst_size)
+unsigned int *calculate_sync_table(unsigned char kernel_size, unsigned int src_size, unsigned int dst_size)
 {
     float f_scale;
     int kernel_half;
@@ -456,9 +456,9 @@ unsigned int * calculate_sync_table(unsigned char kernel_size, unsigned int src_
     unsigned int subpixel_pos;
     int kernel_pos;
     int padding;
-    unsigned short * kernel_array;
-    void * pointer = NULL;
-    unsigned int * tableaddr = NULL;
+    unsigned short *kernel_array;
+    void *pointer = NULL;
+    unsigned int *tableaddr = NULL;
 
     do
     {
@@ -480,7 +480,7 @@ unsigned int * calculate_sync_table(unsigned char kernel_size, unsigned int src_
         }
 
         /* Calculate the kernel half. */
-        kernel_half = (int) (kernel_size >> 1);
+        kernel_half = (int)(kernel_size >> 1);
 
         /* Calculate the subpixel step. */
         f_subpixel_step = MATH_Divide(1.0f, MATH_Int2Float(SUBPIXELCOUNT));
@@ -492,7 +492,7 @@ unsigned int * calculate_sync_table(unsigned char kernel_size, unsigned int src_
         padding = (MAXKERNELSIZE - kernel_size) / 2;
 
         /* Set initial kernel array pointer. */
-        kernel_array = (unsigned short *) (tableaddr + 1);
+        kernel_array = (unsigned short *)(tableaddr + 1);
 
         /* Loop through each subpixel. */
         for (subpixel_pos = 0; subpixel_pos < SUBPIXELLOADCOUNT; subpixel_pos++)
@@ -547,7 +547,7 @@ unsigned int * calculate_sync_table(unsigned char kernel_size, unsigned int src_
             {
                 /* Normalize the current weight. */
                 float fWeight = MATH_Divide(fSubpixelSet[kernel_pos],
-                                                  fWeightSum);
+                                            fWeightSum);
 
                 /* Convert the weight to fixed point and store in the table. */
                 if (fWeight == 0.0f)
@@ -609,12 +609,12 @@ void calculate_gamma_table(dc_gamma_table *gammatable)
     unsigned char temp = 0;
     unsigned int ttt;
 
-    for(i = 0; i < GAMMA_INDEX_MAX; i++)
+    for (i = 0; i < GAMMA_INDEX_MAX; i++)
     {
-        tmpf = (i + 0.5f)/256.0f;
+        tmpf = (i + 0.5f) / 256.0f;
         tmpf = (float)(pow((double)tmpf, (double)0.45));
-        temp = (unsigned char)(tmpf/(1.0f/256.0f) - 0.5f);
-        ttt = ((temp<<22) | (temp<<12) |(temp<<2));
+        temp = (unsigned char)(tmpf / (1.0f / 256.0f) - 0.5f);
+        ttt = ((temp << 22) | (temp << 12) | (temp << 2));
         gammatable->gamma[i][0] = (ttt >> 20) & 0x3FF;
         gammatable->gamma[i][1] = (ttt >> 10) & 0x3FF;
         gammatable->gamma[i][2] = ttt & 0x3FF;
