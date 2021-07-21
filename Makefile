@@ -1,6 +1,6 @@
 include env.mak
 
-SUBDIR=directfb file linuxfb screenshot alphablending
+SUBDIR=directfb file linuxfb screenshot alphablending colorkey sw_alphablending
 
 BUILDSUBDIR = $(SUBDIR:%=build-%)
 CLEANSUBDIR = $(SUBDIR:%=clean-%)

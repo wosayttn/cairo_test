@@ -1,14 +1,13 @@
-/*
- * Demo application drawing rectangles on screen using fbdev
+/**************************************************************************//**
  *
- * This demo shows how to use the fbdev API to sync to vertical blank
- * on Colibri VF50/VF61
+ * Demo per-pixel alpha blending between video and overlay layer on screen using fbdev.
  *
- * Copyright (c) 2015, Toradex AG
+ * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
  *
- * This project is licensed under the terms of the MIT license (see
- * LICENSE)
- */
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ ******************************************************************************/
+
 #include <cairo/cairo.h>
 #include <fcntl.h>
 #include <linux/types.h>
@@ -174,11 +173,16 @@ static void draw_alphablending(cairo_t *fbcr, cairo_linuxfb_device_t *device, in
             SetBlendingMode(device->fb_fd, eAlpha);
             SetVarScreenInfo(device->fb_fd, &device->fb_vinfo);
 
-            sleep(3);
+            sleep(2);
+            if (cancel)
+                goto exit_draw_alphablending;
         }
     }
 
+exit_draw_alphablending:
+
     cairo_surface_destroy(png_surface);
+
 }
 
 int main(int argc, char *argv[])

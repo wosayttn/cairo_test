@@ -1,9 +1,6 @@
-PROG_NAME = cairo_alphablending
-OBJS = cairo_alphablending.o ../dcultra/util.o
-
-LDFLAGS += -lfusion
-LDFLAGS += -lm
-CFLAGS += -I.
+PROG_NAME = sw_alphablending
+SRCS = sw_alphablending.c
+OBJS = sw_alphablending.o
 
 all: ${PROG_NAME}
 
