@@ -1,5 +1,7 @@
 # HW Alpha blending
 
+  This sample shows you all supported hardward alpha blending operation between Video and Overlay layer.
+
 ## Execute
 ```
 # ./cairo_alphablending
@@ -9,8 +11,8 @@
 
 |Layer|ARGB pixel data|
 | --- | --- |
-| ***Video*** | <img src="./figures/video.png?raw=true"> |
-| ***Overlay*** | <img src="./figures/overlay.png?raw=true"> |
+|***Video***|<img src="./figures/video.png?raw=true">|
+|***Overlay***|<img src="./figures/overlay.png?raw=true">|
 
 |Operator|Result|
 | --- | --- |
