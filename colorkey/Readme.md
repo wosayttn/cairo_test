@@ -26,8 +26,8 @@
 ### Description
 The demo plays a H264 elementary stream file and render in specific rectangle view window on video surface using vc8000-h264 program.
 
-More, this demo also draw thress rectangles on overlay surface, with Red, Green and Blue color respectively.
-Finally, this program set red, green or blue color key setting and apply it automatically. So, you can see the overlay transparency effect in demo video clip.
+More, this demo also draw three rectangles on overlay surface, with Red, Green and Blue color respectively.
+Finally, this program set red, green or blue color key setting and applies it automatically. So, you can see the overlay transparency effect in demo video clip.
 
 Below is the H264 ES file information.
 |H.264||
