@@ -24,3 +24,7 @@
 |***DC_BLEND_MODE_SRC_IN***|<img src="./figures/5_DC_BLEND_MODE_SOURCE_IN.png?raw=true">|
 |***DC_BLEND_MODE_DST_IN***|<img src="./figures/6_DC_BLEND_MODE_DEST_IN.png?raw=true">|
 |***DC_BLEND_MODE_SRC_OUT***|<img src="./figures/7_DC_BLEND_MODE_SOURCE_OUT.png?raw=true">|
+
+
+## Video Clips
+[![All Alpha blending mode](https://img.youtube.com/vi/NcBkYnoKQFU/0.jpg)](https://www.youtube.com/watch?v=NcBkYnoKQFU)
