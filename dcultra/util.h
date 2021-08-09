@@ -1,8 +1,8 @@
 #include "dcfb.h"
 #define Delay_SLEEP 0
 
-void dump_vscreeninfo(struct fb_var_screeninfo *fvsi);
-void dump_fscreeninfo(struct fb_fix_screeninfo *ffsi);
+void dump_vscreeninfo(struct fb_var_screeninfo *vinfo);
+void dump_fscreeninfo(struct fb_fix_screeninfo *finfo);
 
 int GetFixScreenInfo(
     int fd,

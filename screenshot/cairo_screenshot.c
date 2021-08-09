@@ -65,6 +65,7 @@ void cairo_linuxfb_surface_destroy(void *dev)
 cairo_surface_t *cairo_linuxfb_surface_create(cairo_linuxfb_device_t *device, const char *fb_name)
 {
     cairo_surface_t *surface;
+    int screensize;
 
     // Open the file for reading and writing
     device->fb_fd = open(fb_name, O_RDWR);
@@ -80,16 +81,7 @@ cairo_surface_t *cairo_linuxfb_surface_create(cairo_linuxfb_device_t *device, co
         perror("Error: reading variable information");
         goto handle_ioctl_error;
     }
-
-    /* Set virtual display size double the width for double buffering */
-    device->fb_vinfo.yoffset = 0;
-//    device->fb_vinfo.yres_virtual = device->fb_vinfo.yres * 2;
-    device->fb_vinfo.yres_virtual = device->fb_vinfo.yres * 3;
-    if (ioctl(device->fb_fd, FBIOPUT_VSCREENINFO, &device->fb_vinfo))
-    {
-        perror("Error setting variable screen info from fb");
-        goto handle_ioctl_error;
-    }
+    screensize = device->fb_vinfo.xres * device->fb_vinfo.yres * device->fb_vinfo.bits_per_pixel / 8;  
 
     // Get fixed screen information
     if (ioctl(device->fb_fd, FBIOGET_FSCREENINFO, &device->fb_finfo) == -1)
@@ -98,7 +90,16 @@ cairo_surface_t *cairo_linuxfb_surface_create(cairo_linuxfb_device_t *device, co
         goto handle_ioctl_error;
     }
 
-    device->fb_screensize = device->fb_vinfo.xres_virtual * device->fb_vinfo.yres_virtual * device->fb_vinfo.bits_per_pixel / 8;
+    /* Set virtual display size double the width for double buffering */
+    device->fb_vinfo.yoffset = 0;
+    device->fb_vinfo.yres_virtual = device->fb_vinfo.yres * (device->fb_finfo.smem_len/screensize);
+    if (ioctl(device->fb_fd, FBIOPUT_VSCREENINFO, &device->fb_vinfo))
+    {
+        perror("Error setting variable screen info from fb");
+        goto handle_ioctl_error;
+    }
+
+    device->fb_screensize = device->fb_finfo.smem_len;
 
     // Map the device to memory
     device->fb_data = (unsigned char *)mmap(0, device->fb_screensize,
