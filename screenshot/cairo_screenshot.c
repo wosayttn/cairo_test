@@ -158,7 +158,6 @@ int main(int argc, char *argv[])
     cairo_linuxfb_device_t *device;
     cairo_surface_t *fbsurface;
     cairo_t *fbcr;
-    int         bRun = 0;
     int         c;
 
     struct option long_option[] =
@@ -185,7 +184,6 @@ int main(int argc, char *argv[])
                 help();
                 return 0;
             }
-            bRun = 1;
             break;
 
         case 'd':
@@ -196,7 +194,6 @@ int main(int argc, char *argv[])
                 help();
                 return 0;
             }
-            bRun = 1;
             break;
 
         case 'w':
@@ -207,7 +204,6 @@ int main(int argc, char *argv[])
                 help();
                 return 0;
             }
-            bRun = 1;
             break;
 
         case 'h':

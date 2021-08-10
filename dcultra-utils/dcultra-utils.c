@@ -139,10 +139,12 @@ int main(int argc, char *argv[])
         dump_vscreeninfo(&g_sFBVarInfo);
         screensize = g_sFBVarInfo.xres * g_sFBVarInfo.yres * g_sFBVarInfo.bits_per_pixel / 8;  
 
+        printf("%d\n", g_i32FBdevfd);
+
         /* Pan the framebuffer */
-        //g_sFBVarInfo.yoffset = 0;
-        //g_sFBVarInfo.yres_virtual = g_sFBVarInfo.yres*(g_sFBFixInfo.smem_len/screensize);
-        //SetVarScreenInfo(g_i32FBdevfd, &g_sFBVarInfo);
+        g_sFBVarInfo.yoffset = g_sFBVarInfo.yres * u32ViewWinIdx;
+        g_sFBVarInfo.yres_virtual = g_sFBVarInfo.yres*(g_sFBFixInfo.smem_len/screensize);
+        SetVarScreenInfo(g_i32FBdevfd, &g_sFBVarInfo);
         flip_buffer(1, u32ViewWinIdx);
     }
 
