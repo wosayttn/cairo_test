@@ -33,10 +33,9 @@ static void help(void)
 {
     fprintf(stdout,
             "Usage: dcultra-utils [OPTION]\n"
-            "-h,--help        Help\n"
-            "-d,--device      frame buffer device node(/dev/fb0, /dev/fb1)\n"
-            "-c,--command     Command\n"
-            "-p,--param       Parameters\n"
+            "-h,--help      Help\n"
+            "-d,--device    Frame buffer device node(/dev/fb0, /dev/fb1)\n"
+            "-s,--set       View window ID\n"
             "\n");
     fflush(stdout);
 }
@@ -137,15 +136,17 @@ int main(int argc, char *argv[])
         int screensize;
         dump_fscreeninfo(&g_sFBFixInfo);
         dump_vscreeninfo(&g_sFBVarInfo);
-        screensize = g_sFBVarInfo.xres * g_sFBVarInfo.yres * g_sFBVarInfo.bits_per_pixel / 8;  
 
-        printf("%d\n", g_i32FBdevfd);
+        screensize = g_sFBVarInfo.xres * g_sFBVarInfo.yres * g_sFBVarInfo.bits_per_pixel / 8;
+        if ( u32ViewWinIdx < (g_sFBFixInfo.smem_len/screensize) )
+        {
+            /* Pan the framebuffer */
+            g_sFBVarInfo.yoffset = g_sFBVarInfo.yres * u32ViewWinIdx;
+            g_sFBVarInfo.yres_virtual = g_sFBVarInfo.yres*(g_sFBFixInfo.smem_len/screensize);
+            SetVarScreenInfo(g_i32FBdevfd, &g_sFBVarInfo);
 
-        /* Pan the framebuffer */
-        g_sFBVarInfo.yoffset = g_sFBVarInfo.yres * u32ViewWinIdx;
-        g_sFBVarInfo.yres_virtual = g_sFBVarInfo.yres*(g_sFBFixInfo.smem_len/screensize);
-        SetVarScreenInfo(g_i32FBdevfd, &g_sFBVarInfo);
-        flip_buffer(1, u32ViewWinIdx);
+            flip_buffer(1, u32ViewWinIdx);
+	}
     }
 
     if ( g_i32FBdevfd >= 0 )
