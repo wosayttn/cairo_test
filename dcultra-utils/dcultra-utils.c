@@ -33,9 +33,10 @@ static void help(void)
 {
     fprintf(stdout,
             "Usage: dcultra-utils [OPTION]\n"
-            "-h,--help      Help\n"
-            "-d,--device    Frame buffer device node(/dev/fb0, /dev/fb1)\n"
-            "-s,--set       View window ID\n"
+            "-h,--help           Help\n"
+            "-d,--device         Frame buffer device node(/dev/fb0, /dev/fb1)\n"
+            "-s,--SetPanDisplay  View window ID - 0, 1, 2\n"
+            "-c,--SetColor       Fill Color before pan display\n"
             "\n");
     fflush(stdout);
 }
@@ -74,7 +75,7 @@ int flip_buffer(int vsync, int bufid)
 int main(int argc, char *argv[])
 {
     char fb_node[16] = {0};
-    uint32_t u32ViewWinIdx;
+    uint32_t u32ViewWinIdx = 0, u32FillColor = 0;
     int c;
 
     struct option long_option[] =
@@ -82,11 +83,12 @@ int main(int argc, char *argv[])
         {"help", 0, NULL, 'h'},
         {"device", 1, NULL, 'd'},
         {"SetPanDisplay", 1, NULL, 's'},
+        {"SetColor", 1, NULL, 'c'},
         {NULL, 0, NULL, 0},
     };
 
     // Parsing
-    while ((c = getopt_long(argc, argv, "d:s:h", long_option, NULL)) >= 0)
+    while ((c = getopt_long(argc, argv, "d:s:c:h", long_option, NULL)) >= 0)
     {
         switch (c)
         {
@@ -102,7 +104,17 @@ int main(int argc, char *argv[])
 
         case 's':
             if (optarg)
-                u32ViewWinIdx = atoi(optarg);
+                sscanf(optarg, "%d", &u32ViewWinIdx);
+            else
+            {
+                help();
+                return -1;
+            }
+            break;
+
+        case 'c':
+            if (optarg)
+                sscanf(optarg, "%x", &u32FillColor);
             else
             {
                 help();
@@ -127,7 +139,7 @@ int main(int argc, char *argv[])
     {
         perror("GetFixScreenInfo");
     }
-    else if ( (GetVarScreenInfo(g_i32FBdevfd, &g_sFBVarInfo)) < 0 ) 
+    else if ( (GetVarScreenInfo(g_i32FBdevfd, &g_sFBVarInfo)) < 0 )
     {
         perror("GetVarScreenInfo");
     }
@@ -140,13 +152,27 @@ int main(int argc, char *argv[])
         screensize = g_sFBVarInfo.xres * g_sFBVarInfo.yres * g_sFBVarInfo.bits_per_pixel / 8;
         if ( u32ViewWinIdx < (g_sFBFixInfo.smem_len/screensize) )
         {
-            /* Pan the framebuffer */
-            g_sFBVarInfo.yoffset = g_sFBVarInfo.yres * u32ViewWinIdx;
-            g_sFBVarInfo.yres_virtual = g_sFBVarInfo.yres*(g_sFBFixInfo.smem_len/screensize);
-            SetVarScreenInfo(g_i32FBdevfd, &g_sFBVarInfo);
+            // Map the device to memory
+            unsigned char *usermem = (unsigned char *)mmap(0, g_sFBFixInfo.smem_len,
+                                                  PROT_READ | PROT_WRITE, MAP_SHARED,
+                                                  g_i32FBdevfd, 0);
+            if (usermem == (unsigned char *) -1)
+            {
+                perror("Error: failed to map framebuffer device to memory");
+            }
+            else
+            {
+                /* Pan the framebuffer */
+                g_sFBVarInfo.yoffset = g_sFBVarInfo.yres * u32ViewWinIdx;
 
-            flip_buffer(1, u32ViewWinIdx);
-	}
+                printf("u32FillColor = %08x\n", u32FillColor);
+                CleanScreen(u32FillColor, &g_sFBVarInfo, usermem, screensize);
+
+                flip_buffer(1, u32ViewWinIdx);
+                munmap((void *)usermem, g_sFBFixInfo.smem_len);
+            }
+
+        }
     }
 
     if ( g_i32FBdevfd >= 0 )
