@@ -148,6 +148,13 @@ static void draw_alphablending(cairo_t *fbcr, cairo_linuxfb_device_t *device, in
     int fbsizex = device->fb_vinfo.xres;
     int fbsizey = device->fb_vinfo.yres;
     cairo_surface_t *png_surface;
+    dc_color_key myColKey;
+
+    /* Disable Colorkey transparency effect. */
+    myColKey.enable = 0;
+    myColKey.colorkey_low = 0;
+    myColKey.colorkey_high = 0;
+    SetColorkey(device->fb_fd, myColKey);
 
     /* Load PNG resources. */
     png_surface = cairo_image_surface_create_from_png("nuvoton.png");
